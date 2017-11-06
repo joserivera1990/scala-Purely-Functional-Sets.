@@ -77,6 +77,13 @@ class FunSetSuite extends FunSuite {
     val s1 = singletonSet(1)
     val s2 = singletonSet(2)
     val s3 = singletonSet(3)
+    val s4 = singletonSet(1)
+    val setPositiveNumbers = union(singletonSet(1), singletonSet(300))
+    val setNegativeNumbers = union(singletonSet(-10), singletonSet(-99))
+    val setPositiveAndNegativeNumbers = union(setPositiveNumbers, setNegativeNumbers)
+    val setEvenNumbers = union(singletonSet(4), singletonSet(6))
+    val setOddNumbers = union(singletonSet(3), singletonSet(9))
+    val setEvenAndOddNumbers = union(setEvenNumbers, setOddNumbers)
   }
 
   /**
@@ -98,6 +105,7 @@ class FunSetSuite extends FunSuite {
        * the test fails. This helps identifying which assertion failed.
        */
       assert(contains(s1, 1), "Singleton")
+      assert(contains(s2, 2), "Singleton")
     }
   }
 
@@ -110,5 +118,84 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  test("intersect contains elements in both sets") {
+    new TestSets {
+      val intersection1 = intersect(s1, s2)
+      assert(!contains(intersection1, 1), "Intersect 1 between singletonSet(1) and singletonSet(2)")
+      val intersection2 = intersect(s1, s4)
+      assert(contains(intersection2, 1), "Intersect 1 between singletonSet(1) and singletonSet(4)")
+      assert(!contains(intersection2, 2), "Intersect 2 between singletonSet(1) and singletonSet(4)")
+    }
+  }
 
+
+  test("diff returns the difference between the two sets") {
+    new TestSets {
+      val difference1 = diff(s1, s2)
+      assert(contains(difference1, 1), "Diff 1 between singletonSet(1) and singletonSet(2)")
+      val difference2 = diff(s1, s4)
+      assert(!contains(difference2, 1), "Diff 2 between singletonSet(1) and singletonSet(4)")
+
+
+    }
+  }
+
+  test("filter returns the subset of one set for which a parameter function holds") {
+    new TestSets {
+      val filterSet1 = filter(s1, {elem: Int => elem < 2})
+      assert(contains(filterSet1, 1))
+
+
+      val filterSet2 = filter(s3, {elem: Int => elem > 5})
+      assert(!contains(filterSet2, 3))
+
+
+    }
+  }
+
+  test("forall function") {
+    new TestSets {
+
+      assert(forall(setPositiveNumbers, {elem:Int => elem > 0}))
+
+
+      assert(forall(setNegativeNumbers, {elem:Int => elem < 0}))
+
+
+      assert(!forall(setPositiveAndNegativeNumbers, {elem:Int => elem < 0}))
+
+
+      assert(forall(setEvenNumbers, {elem:Int => (elem % 2) == 0}))
+
+      assert(forall(setOddNumbers, {elem:Int => (elem % 2) != 0}))
+
+      assert(!forall(setEvenAndOddNumbers, {elem:Int => (elem % 2) == 0}))
+
+
+
+    }
+  }
+
+  test("exists function") {
+    new TestSets {
+      assert(exists(setPositiveAndNegativeNumbers, {elem:Int => elem > 0}))
+      assert(exists(setPositiveAndNegativeNumbers, {elem:Int => elem == 1}))
+      assert(exists(setEvenAndOddNumbers, {elem:Int => (elem % 2) ==  0}))
+
+    }
+  }
+
+  test("map function"){
+    new TestSets {
+      val mapEvenSetToOdd = map(setEvenNumbers, { elem:Int => elem + 1})
+      assert(contains(mapEvenSetToOdd,5) && contains(mapEvenSetToOdd,7))
+
+      val mapOddSetToEven = map(setOddNumbers, { elem:Int => elem * 5})
+
+      assert(forall(mapOddSetToEven, {elem:Int => (elem % 5) == 0}))
+
+
+    }
+
+  }
 }
